@@ -24,7 +24,7 @@ add_subdirectory(${DEPS_DIR}/enet)
 
 
 set (COMMON_FILES 
-    ${SRC_DIR}/common.h 
+    ${SRC_DIR}/common.c 
 )
 
 add_executable(server ${SRC_DIR}/server/server.c ${COMMON_FILES})

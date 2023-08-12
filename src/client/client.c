@@ -73,6 +73,9 @@ int main(int argc, char *argv[]) {
 
   ENetEvent event;
 
+  enet_uint32 timeout = 10;
+
+
   /* Wait up to 5 seconds for the connection attempt to succeed. */
   if (enet_host_service(host, &event, 1000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
     log_info("Connection succeeded to %s", hostname);
@@ -85,7 +88,11 @@ int main(int argc, char *argv[]) {
     enet_host_destroy(host);
   }
 
-  while (enet_host_service(host, &event, 1000) != EVENT_ERROR) {
-    // handle_event(&event);
+  log_debug("Polling for events");
+  while (true) {
+    int event_status = enet_host_service(host, &event, timeout);
+    handle_event(event_status, &event);
   }
+
+  enet_host_destroy(host);
 }

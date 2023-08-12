@@ -61,49 +61,6 @@ Server *create_server(const char *ip, int port, int max_clients) {
 void stop_server(Server *server) {
   enet_host_destroy(server->host);
 }
-
-void handle_event_error(ENetEvent *event) {
-  log_error("Event error: %s", strerror(errno));
-}
-
-void handle_event_occured(ENetEvent *event) {
-  log_debug("Handling occured event");
-  ENetPeer *peer = event->peer;
-  ENetAddress address = event->peer->address;
-
-  char hostname[256];
-  enet_address_get_host_ip(&address, hostname, sizeof hostname);
-
-  switch (event->type) {
-  case ENET_EVENT_TYPE_CONNECT:
-    log_debug("A new client connected from %s:%u.", hostname, event->peer->address.port);
-    /* Store any relevant client information here. */
-    event->peer->data = "Client information";
-    break;
-  case ENET_EVENT_TYPE_RECEIVE:
-    printf("A packet of length %lu containing %s was received from %p on channel %u.\n",
-           event->packet->dataLength, event->packet->data, event->peer->data, event->channelID);
-    /* Clean up the packet now that we're done using it. */
-    enet_packet_destroy(event->packet);
-
-    break;
-
-  case ENET_EVENT_TYPE_DISCONNECT:
-    printf("%p disconnected.\n", event->peer->data);
-    /* Reset the peer's client information. */
-    event->peer->data = NULL;
-  }
-}
-
-bool handle_event(int event_status, ENetEvent *event) {
-  switch (event_status) {
-  case EVENT_OCCURED:
-    handle_event_occured(event);
-  case EVENT_ERROR:
-    handle_event_error(event);
-  }
-}
-
 int main() {
 
   if (enet_initialize() != 0) {
@@ -113,11 +70,11 @@ int main() {
   atexit(enet_deinitialize);
 
   ENetEvent event;
-  Server *server = create_server("127.0.0.1", 32438, 64);
+  Server *server = create_server(NULL, 32438, 64);
   log_debug("Server created");
   ENetHost *host = server->host;
 
-  enet_uint32 timeout = 0;
+  enet_uint32 timeout = 10;
 
   log_debug("Polling for events");
   while (true) {

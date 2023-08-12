@@ -7,6 +7,15 @@
 #include "log.h"
 #include <enet/enet.h>
 
+
+void on_packet_receive(ENetPacket *packet) {
+  log_debug("packet receive callback");
+  // Do our client-specific stuff
+  // Clean up the packet now that we're done using it.
+  enet_packet_destroy(packet);
+}
+
+
 ENetHost *create_client_host() {
   /** Create an ENetHost that will act as a client. */
   ENetHost *host;
